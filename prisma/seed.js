@@ -7,8 +7,8 @@ const placeholderUrl = 'https://jsonplaceholder.typicode.com'
 async function main() {
 
     await prisma.user.deleteMany({})
-    await prisma.post.deleteMany({})
     await prisma.comment.deleteMany({})
+    await prisma.post.deleteMany({})
 
       await axios.get(`${placeholderUrl}/users`).then(async response => { //User data
         const data = response.data
@@ -26,10 +26,9 @@ async function main() {
 
     await axios.get(`${placeholderUrl}/posts`).then(async response => { //Post data
         const data = response.data
-        data.map( async post => {
-            await prisma.post.create({
-                data: post
-            })
+        await prisma.post.createMany({
+            data,
+            skipDuplicates: true
         })
     }).catch(function (error) {
         // handle error
@@ -38,10 +37,9 @@ async function main() {
 
     await axios.get(`${placeholderUrl}/comments`).then(async response => { //Comment data
         const data = response.data
-        data.map( async comment => {
-            await prisma.comment.create({
-                data: comment
-            })
+        await prisma.comment.createMany({
+            data,
+            skipDuplicates: true
         })
     }).catch(function (error) {
         // handle error
