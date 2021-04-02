@@ -1,53 +1,55 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["createMany"]
+}
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["createMany"]
-}
-
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  username  String
-  phone     String?
-  website   String?
-  role      Role     @default(USER)
-  posts     Post[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String   @db.VarChar(255)
-  body      String?  @db.Text
-  user      User?    @relation(fields: [userId], references: [id])
-  userId    Int?
-  published Boolean  @default(false)
-  comments  Comment[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 model Comment {
   id        Int      @id @default(autoincrement())
-  post      Post     @relation(fields: [postId], references: [id])
   postId    Int
-  name      String
   body      String   @db.Text
   email     String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime
+  name      String
+  Post      Post     @relation(fields: [postId], references: [id])
+
+  @@index([postId], name: "postId")
 }
 
-enum Role {
+model Post {
+  id        Int       @id @default(autoincrement())
+  title     String    @db.VarChar(255)
+  body      String?   @db.Text
+  userId    Int?
+  published Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  image     String    @default("")
+  User      User?     @relation(fields: [userId], references: [id])
+  Comment   Comment[]
+
+  @@index([userId], name: "userId")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  username  String
+  phone     String?
+  website   String?
+  role      User_role @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  Post      Post[]
+}
+
+enum User_role {
   USER
   ADMIN
 }
